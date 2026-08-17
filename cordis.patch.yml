@@ -1,0 +1,7 @@
+# dsh-plugin-llm-proxy bundle layer — applied when a profile lists this bundle
+# (package.json declares `dsh.bundle.patch` pointing at this file).
+#
+# `name` is a PACKAGE NAME resolved through the profile's node_modules.
+- insert:
+    - id: llm-proxy
+      name: dsh-plugin-llm-proxy
