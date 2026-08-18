@@ -14,7 +14,7 @@ OpenAI 兼容模型（chat/completions 协议）接入 DSH，并让该厂商的�
   `proxy`（可选，正向代理地址）、`models`（模型目录）、
   `defaultReasoningEffort`（默认思考强度）、`streamIdleTimeoutMs`、`retryPolicy`。
 - 思考强度（推理等级）：每个模型暴露 `off` / `high` / `max` 三档，可在模型选择器里
-  按会话切换；默认档由 `defaultReasoningEffort` 决定。
+  按会话切换；新会话默认档由 `defaultReasoningEffort` 决定（不设置则跟随网关默认）。
 
 ## 安装
 
@@ -46,7 +46,7 @@ dsh plugin --profile web add file:./dsh-plugin-llm-proxy
     baseURL: https://llm.company.example/v1      # 公司模型网关
     apiKeyEnv: COMPANY_LLM_API_KEY               # 可选；删掉则不带鉴权头
     proxy: http://proxy.company.example:8080     # 可选；正向代理地址
-    defaultReasoningEffort: high                 # 可选；off | high | max（默认 high）
+    defaultReasoningEffort: high                 # 可选；off | high | max（不设置则跟随网关默认）
     models:
       - id: company-model
         name: Company Model
@@ -85,11 +85,13 @@ llm-proxy:
 
 | 档位 | 发送字段 |
 |---|---|
+| （未设置） | 不发送 `thinking` / `reasoning_effort`，跟随网关默认 |
 | `off` | `thinking: { "type": "disabled" }` |
 | `high` | `thinking: { "type": "enabled" }` + `reasoning_effort: "high"` |
 | `max` | `thinking: { "type": "enabled" }` + `reasoning_effort: "max"` |
 
-- 新会话默认使用 `defaultReasoningEffort`；会话内通过模型选择器切换只影响该会话。
+- 配置了 `defaultReasoningEffort` 时，新会话默认使用该档；否则不发送思考字段，
+  跟随网关默认。会话内通过模型选择器切换只影响该会话。
 - 会话标题生成请求（`purpose: session-title`）固定发送 `thinking: disabled`，省 token。
 
 ## 说明 / 边界
